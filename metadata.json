@@ -1,0 +1,5 @@
+{
+  "name": "Aqua Vision: Aquarium Identifier",
+  "description": "An expert system to recognize and provide detailed information about aquarium fish and plants from an image. Upload a photo to identify an object and receive a comprehensive report on its characteristics, care requirements, and compatibility.",
+  "requestFramePermissions": []
+}
