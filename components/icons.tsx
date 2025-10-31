@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export const UploadIcon: React.FC = () => (
@@ -54,5 +53,27 @@ export const SearchQuestionIcon: React.FC = () => (
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"></path>
       <path d="M12 17.01h.01"></path>
+    </svg>
+);
+
+export const ThermometerIcon: React.FC = () => (
+    <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14a2 2 0 100-4 2 2 0 000 4z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18.5V5.5m0 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path></svg>
+);
+
+export const PhIcon: React.FC = () => (
+    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>
+);
+
+export const HardnessIcon: React.FC = () => (
+    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.2 8.7a3 3 0 0 1 0-3.4l6.1-3.5a3 3 0 0 1 3.4 0l6.1 3.5a3 3 0 0 1 0 3.4l-6.1 3.5a3 3 0 0 1-3.4 0Z"/><path d="m14.2 12.3 6.1 3.5a3 3 0 0 1 0 3.4l-6.1 3.5a3 3 0 0 1-3.4 0l-6.1-3.5a3 3 0 0 1 0-3.4Z"/></svg>
+);
+
+export const AquariumIcon: React.FC = () => (
+    <svg className="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 9.5c0-.8-.5-1.5-1.3-1.5H3.3C2.5 8 2 8.7 2 9.5V17a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2.5"/><path d="M12 19v-5.5"/><path d="M8 19v-2.5"/><path d="M16 19v-2.5"/><path d="M10 9c0-2.5 1-4.5 2-4.5s2 2 2 4.5"/><path d="M12.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+);
+
+export const SparklesIcon: React.FC = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3v.01M16.2 7.8l.01-.01M21 12h-.01M16.2 16.2l-.01-.01M12 21v-.01M7.8 16.2l-.01.01M3 12h.01M7.8 7.8l.01.01"/>
     </svg>
 );

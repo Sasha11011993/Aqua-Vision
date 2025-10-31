@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { IdentificationReport } from '../types';
+import type { IdentificationReport, SimilarObject } from '../types';
+import { ObjectType } from '../types';
 
 if (!process.env.API_KEY) {
   // This is a placeholder check. In a real environment, the key would be set.
@@ -9,6 +10,18 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
+const careConditionsSchema = {
+    type: Type.OBJECT,
+    description: "Параметри води та акваріума.",
+    properties: {
+        "Температура": { type: Type.STRING, description: "Діапазон температур у градусах Цельсія, наприклад '24-28°C'." },
+        "pH": { type: Type.STRING, description: "Діапазон кислотності води, наприклад '6.5-7.5'." },
+        "Жорсткість (GH)": { type: Type.STRING, description: "Діапазон загальної жорсткості води, наприклад '5-15 dGH'." },
+        "Опис": { type: Type.STRING, description: "Додатковий текстовий опис умов утримання." }
+    },
+    required: ["Температура", "pH", "Жорсткість (GH)", "Опис"]
+};
+
 const fishSchema = {
   type: Type.OBJECT,
   properties: {
@@ -16,7 +29,14 @@ const fishSchema = {
     "Назва (лат.)": { type: Type.STRING, description: "Наукова назва." },
     "Тип": { type: Type.STRING, enum: ["Риба"], description: "Тип об'єкта." },
     "Загальний опис": { type: Type.STRING, description: "Походження, характерні риси (розмір, колір, форма)." },
-    "Умови утримання": { type: Type.STRING, description: "Рекомендований об'єм акваріума, температура води, pH, жорсткість." },
+    "Умови утримання": { 
+        ...careConditionsSchema,
+        properties: {
+            ...careConditionsSchema.properties,
+            "Об'єм акваріума": { type: Type.STRING, description: "Мінімальний рекомендований об'єм акваріума в літрах, наприклад 'від 100 л'." },
+        },
+        required: [...careConditionsSchema.required, "Об'єм акваріума"]
+    },
     "Сумісність": { type: Type.STRING, description: "З якими рибами та безхребетними добре уживається, а з якими – ні." },
     "Годування": { type: Type.STRING, description: "Тип корму (сухий, живий, рослинний), частота." },
     "Розмноження": { type: Type.STRING, description: "Коротка інформація про нерест." },
@@ -32,7 +52,7 @@ const plantSchema = {
         "Назва (лат.)": { type: Type.STRING, description: "Наукова назва." },
         "Тип": { type: Type.STRING, enum: ["Рослина"], description: "Тип об'єкта." },
         "Загальний опис": { type: Type.STRING, description: "Походження, висота, швидкість росту." },
-        "Умови утримання": { type: Type.STRING, description: "Рекомендована температура води, pH, жорсткість." },
+        "Умови утримання": careConditionsSchema,
         "Освітлення": { type: Type.STRING, description: "Необхідна інтенсивність (Низька, Середня, Висока) та тривалість." },
         "CO2 та добрива": { type: Type.STRING, description: "Чи потрібне додаткове CO2, які макро- та мікроелементи критичні." },
         "Розміщення в акваріумі": { type: Type.STRING, description: "Передній, середній чи задній план." },
@@ -43,7 +63,11 @@ const plantSchema = {
 
 
 export async function identifyAquariumObject(imageBase64: string, mimeType: string): Promise<IdentificationReport> {
-  const prompt = `Ви — експертна система для розпізнавання акваріумних риб та рослин. Проаналізуйте надане зображення. Чітко визначте, чи це риба, чи рослина. Визначте точну наукову (латинську) та поширену (українську) назви об'єкта. Надайте вичерпну інформацію у форматі JSON, що відповідає наданій схемі. Якщо на фото риба, використовуйте схему для риби. Якщо рослина — схему для рослини. Вся текстова інформація має бути українською мовою. Якщо об'єкт неможливо ідентифікувати як акваріумну рибу або рослину, поверніть помилку.`;
+  const prompt = `Ви — експертна система для розпізнавання акваріумних риб та рослин. Проаналізуйте надане зображення. Чітко визначте, чи це риба, чи рослина. Визначте точну наукову (латинську) та поширену (українську) назви об'єкта. Надайте вичерпну інформацію у форматі JSON, що відповідає наданій схемі.
+  
+Для поля "Умови утримання" надайте як структуровані дані (температура, pH, жорсткість, об'єм акваріума для риб), так і загальний текстовий опис у полі "Опис".
+  
+Якщо на фото риба, використовуйте схему для риби. Якщо рослина — схему для рослини. Вся текстова інформація має бути українською мовою. Якщо об'єкт неможливо ідентифікувати як акваріумну рибу або рослину, поверніть помилку.`;
 
   const imagePart = {
     inlineData: {
@@ -88,5 +112,64 @@ export async function identifyAquariumObject(imageBase64: string, mimeType: stri
   } catch (e) {
     console.error("Failed to parse JSON response:", jsonString);
     throw new Error("Отримана відповідь має невірний формат.");
+  }
+}
+
+const similarObjectsSchema = {
+    type: Type.ARRAY,
+    description: "Список схожих акваріумних риб або рослин.",
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            "Назва": { type: Type.STRING, description: "Українська назва схожого виду." },
+            "Причина схожості": { type: Type.STRING, description: "Коротке пояснення, чому цей вид схожий (наприклад, за умовами утримання, зовнішнім виглядом, поведінкою)." }
+        },
+        required: ["Назва", "Причина схожості"]
+    }
+};
+
+export async function findSimilarObjects(report: IdentificationReport): Promise<SimilarObject[]> {
+  const objectType = report.Тип === ObjectType.Fish ? 'рибу' : 'рослину';
+  const objectName = report['Назва (укр.)'];
+  const careConditions = report['Умови утримання'];
+
+  let description = `Назва: ${objectName}.`;
+  if (typeof careConditions === 'object' && careConditions !== null) {
+      const conditions = careConditions as { 'Температура'?: string; 'pH'?: string; 'Жорсткість (GH)'?: string };
+      description += ` Умови: Температура ${conditions['Температура']}, pH ${conditions['pH']}, Жорсткість ${conditions['Жорсткість (GH)']}.`;
+  }
+
+  const prompt = `На основі характеристик акваріумної ${objectType} "${description}", запропонуй 3 схожі види. Схожість може бути за зовнішнім виглядом, умовами утримання або поведінкою (для риб). Надай результат у форматі JSON, що відповідає наданій схемі. Вся інформація має бути українською мовою.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: { parts: [{ text: prompt }] },
+    config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+                similar: similarObjectsSchema
+            },
+            required: ['similar']
+        }
+    }
+  });
+
+  const jsonString = response.text;
+  if (!jsonString) {
+    throw new Error("API не повернуло схожих об'єктів.");
+  }
+
+  try {
+    const parsedResponse = JSON.parse(jsonString);
+    const data = parsedResponse.similar;
+    if (!Array.isArray(data)) {
+        throw new Error("Відповідь API не містить очікуваного масиву даних.");
+    }
+    return data as SimilarObject[];
+  } catch (e) {
+    console.error("Failed to parse JSON response for similar objects:", jsonString);
+    throw new Error("Отримана відповідь про схожі об'єкти має невірний формат.");
   }
 }

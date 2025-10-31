@@ -1,4 +1,3 @@
-
 export enum ObjectType {
   Fish = 'Риба',
   Plant = 'Рослина',
@@ -10,12 +9,25 @@ export enum CareDifficulty {
   Hard = 'Складний',
 }
 
+export interface CareConditions {
+  'Температура': string;
+  'pH': string;
+  'Жорсткість (GH)': string;
+  'Опис': string;
+}
+
+export interface FishCareConditions extends CareConditions {
+  'Об\'єм акваріума': string;
+}
+
+export interface PlantCareConditions extends CareConditions {}
+
 export interface FishReport {
   'Назва (укр.)': string;
   'Назва (лат.)': string;
   'Тип': ObjectType.Fish;
   'Загальний опис': string;
-  'Умови утримання': string;
+  'Умови утримання': FishCareConditions;
   'Сумісність': string;
   'Годування': string;
   'Розмноження': string;
@@ -27,7 +39,7 @@ export interface PlantReport {
   'Назва (лат.)': string;
   'Тип': ObjectType.Plant;
   'Загальний опис': string;
-  'Умови утримання': string;
+  'Умови утримання': PlantCareConditions;
   'Освітлення': string;
   'CO2 та добрива': string;
   'Розміщення в акваріумі': string;
@@ -35,3 +47,8 @@ export interface PlantReport {
 }
 
 export type IdentificationReport = FishReport | PlantReport;
+
+export interface SimilarObject {
+  'Назва': string;
+  'Причина схожості': string;
+}
