@@ -35,34 +35,33 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onImageUpload }) => {
   }, [onImageUpload]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center" onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}>
-      <div className="w-full max-w-2xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-blue-800 mb-4">Aqua Vision</h1>
-        <p className="text-lg text-gray-600 mb-8">Ваш експертний гід у світі акваріумістики. Розпізнайте будь-яку рибу чи рослину за фото.</p>
+    <div className="flex flex-col items-center justify-center text-center p-8 md:p-16" onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}>
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Розпізнайте мешканця акваріума</h2>
+        <p className="text-lg text-gray-600 mb-10 max-w-xl">Завантажте або зробіть фотографію риби чи рослини, щоб отримати повний звіт про догляд та сумісність.</p>
         
-        <div className={`border-dashed rounded-xl p-8 md:p-12 transition-all duration-300 ease-in-out transform ${isDragging ? 'border-blue-500 bg-blue-100/80 border-4 scale-105 shadow-xl' : 'border-gray-300 bg-white/50 border-2'}`}>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-            <label className="flex-1 w-full cursor-pointer px-6 py-4 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-3">
-              <UploadIcon />
-              <span>Завантажити фото</span>
-              <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-            </label>
-            
-            <span className="text-gray-500 font-medium">або</span>
+        <div 
+          className={`w-full max-w-lg border-2 border-dashed rounded-xl p-8 transition-all duration-300 ease-in-out ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50/70'}`}
+        >
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="text-blue-500"><UploadIcon /></div>
+            <p className="text-gray-600 font-semibold">{isDragging ? "Відпустіть файл для завантаження" : "Перетягніть зображення сюди"}</p>
+            <p className="text-gray-500">або</p>
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              <label className="flex-1 cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-3 font-semibold">
+                <span>Обрати файл</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+              </label>
 
-            <label className="flex-1 w-full cursor-pointer px-6 py-4 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all transform hover:scale-105 flex items-center justify-center gap-3">
-              <CameraIcon />
-              <span>Зробити фото</span>
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
-            </label>
+              <label className="flex-1 cursor-pointer px-6 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all transform hover:scale-105 flex items-center justify-center gap-3 font-semibold">
+                <CameraIcon />
+                <span>Зробити фото</span>
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
+              </label>
+            </div>
           </div>
-          <p className="mt-6 text-sm text-gray-500">
-            {isDragging ? "Відпустіть файл для завантаження" : "Або просто перетягніть зображення сюди"}
-          </p>
         </div>
 
-        <p className="mt-8 text-xs text-gray-400">Для найкращого результату зробіть чітке фото об'єкта у фокусі.</p>
-      </div>
+        <p className="mt-8 text-sm text-gray-500">Для найкращого результату фото має бути чітким та у фокусі.</p>
     </div>
   );
 };

@@ -5,13 +5,13 @@ import { ResultScreen } from './components/ResultScreen';
 import { Loader } from './components/Loader';
 import { identifyAquariumObject } from './services/geminiService';
 import type { IdentificationReport } from './types';
-import { SearchQuestionIcon } from './components/icons';
+import { SearchQuestionIcon, LogoIcon } from './components/icons';
 
 type Screen = 'home' | 'loading' | 'result' | 'error' | 'not_found';
 
 const NotFoundScreen: React.FC<{ onReset: () => void }> = ({ onReset }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4 animate-fade-in">
+    <div className="flex flex-col items-center justify-center text-center p-8 md:p-12 animate-fade-in">
       <SearchQuestionIcon />
       <h2 className="text-2xl font-bold text-gray-800 mt-6 mb-2">Нічого не знайдено</h2>
       <p className="text-gray-600 max-w-md mb-8">
@@ -19,13 +19,22 @@ const NotFoundScreen: React.FC<{ onReset: () => void }> = ({ onReset }) => {
       </p>
       <button
         onClick={onReset}
-        className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500"
+        className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
       >
         Спробувати ще раз
       </button>
     </div>
   );
 };
+
+const Header: React.FC = () => (
+    <header className="py-4 md:py-6">
+      <div className="container mx-auto flex items-center justify-center gap-3 text-center">
+        <LogoIcon />
+        <h1 className="text-2xl md:text-3xl font-bold text-blue-900 tracking-tight">Aqua Vision</h1>
+      </div>
+    </header>
+  );
 
 const App: React.FC = () => {
   const [screen, setScreen] = useState<Screen>('home');
@@ -84,12 +93,12 @@ const App: React.FC = () => {
         return <NotFoundScreen onReset={handleReset} />;
       case 'error':
         return (
-          <div className="flex flex-col items-center justify-center h-screen text-center p-4">
-            <h2 className="text-xl font-bold text-red-600 mb-4">Помилка</h2>
-            <p className="text-gray-700 mb-6">{error}</p>
+          <div className="flex flex-col items-center justify-center text-center p-8 md:p-12 animate-fade-in">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Сталася помилка</h2>
+            <p className="text-gray-700 max-w-md mb-8">{error}</p>
             <button
               onClick={handleReset}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
             >
               Спробувати ще
             </button>
@@ -102,9 +111,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-gray-800">
-      <main className="container mx-auto p-4 md:p-8">
-        {renderScreen()}
+    <div className="min-h-screen text-gray-800 flex flex-col p-4 antialiased">
+      <Header />
+      <main className="flex-grow flex items-center justify-center">
+        <div className="w-full max-w-4xl bg-white/60 backdrop-blur-md rounded-2xl shadow-2xl shadow-blue-200/20 border border-white/50">
+           <div className="p-2">
+             <div className="bg-white/80 rounded-xl overflow-hidden">
+                {renderScreen()}
+             </div>
+           </div>
+        </div>
       </main>
     </div>
   );

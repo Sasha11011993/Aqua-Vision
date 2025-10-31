@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const UploadIcon: React.FC = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
 );
 
 export const CameraIcon: React.FC = () => (
@@ -75,5 +75,11 @@ export const AquariumIcon: React.FC = () => (
 export const SparklesIcon: React.FC = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 3v.01M16.2 7.8l.01-.01M21 12h-.01M16.2 16.2l-.01-.01M12 21v-.01M7.8 16.2l-.01.01M3 12h.01M7.8 7.8l.01.01"/>
+    </svg>
+);
+
+export const LogoIcon: React.FC = () => (
+    <svg className="w-8 h-8 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14.2929 7.70711C13.9024 7.31658 13.9024 6.68342 14.2929 6.29289C14.6834 5.90237 15.3166 5.90237 15.7071 6.29289L18.7071 9.29289C19.0976 9.68342 19.0976 10.3166 18.7071 10.7071L12.7071 16.7071C12.3166 17.0976 11.6834 17.0976 11.2929 16.7071L5.29289 10.7071C4.90237 10.3166 4.90237 9.68342 5.29289 9.29289C5.68342 8.90237 6.31658 8.90237 6.70711 9.29289L10 12.5858V4C10 3.44772 10.4477 3 11 3H13C13.5523 3 14 3.44772 14 4V12.5858L14.2929 12.2929C15.8562 10.7296 18.1438 10.7296 19.7071 12.2929C21.2704 13.8562 21.2704 16.1438 19.7071 17.7071C18.1438 19.2704 15.8562 19.2704 14.2929 17.7071C13.1979 16.6121 12.7296 15.1121 13 13.7071" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
 );

@@ -13,9 +13,9 @@ interface ResultScreenProps {
 const CareParameter: React.FC<{ icon: React.ReactNode; label: string; value: string | undefined; }> = ({ icon, label, value }) => {
   if (!value) return null;
   return (
-    <div className="flex flex-col items-center justify-center p-4 text-center bg-gray-50/50 rounded-lg shadow-sm border border-gray-200/80">
+    <div className="flex flex-col items-center justify-center p-4 text-center bg-slate-100 rounded-xl border border-slate-200">
       <div className="mb-2 transition-transform duration-200 ease-in-out hover:scale-110">{icon}</div>
-      <p className="text-sm font-semibold text-gray-700">{label}</p>
+      <p className="text-sm font-semibold text-gray-600">{label}</p>
       <p className="text-lg font-bold text-gray-900">{value}</p>
     </div>
   );
@@ -26,33 +26,33 @@ const AccordionItem: React.FC<{ title: string; icon: React.ReactNode; children: 
   const id = `accordion-content-${title.replace(/\s+/g, '-')}`;
 
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-t border-gray-200 last:border-b">
       <h2 id={`accordion-header-${title.replace(/\s+/g, '-')}`}>
         <button
           type="button"
-          className="group flex items-center justify-between w-full p-5 font-medium text-left text-gray-600 hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75 transition-colors"
+          className="group flex items-center justify-between w-full p-5 font-medium text-left text-gray-700 hover:bg-slate-100/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors duration-200"
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-controls={id}
         >
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-4">
             <div className="transition-transform duration-200 ease-in-out group-hover:scale-110">{icon}</div>
-            {title}
+            <span className="text-lg">{title}</span>
           </span>
-          <svg className={`w-3 h-3 shrink-0 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+          <svg className={`w-4 h-4 shrink-0 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5 5 1 1 5"/>
           </svg>
         </button>
       </h2>
       <div
         id={id}
-        className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+        className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
         role="region"
         aria-labelledby={`accordion-header-${title.replace(/\s+/g, '-')}`}
       >
         <div className="overflow-hidden">
-          <div className="p-5 border-t border-gray-200 bg-white">
-            <div className="text-gray-500 whitespace-pre-line">{children}</div>
+          <div className="p-5 bg-slate-50">
+            <div className="text-gray-600 whitespace-pre-line prose max-w-none">{children}</div>
           </div>
         </div>
       </div>
@@ -92,38 +92,38 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ result, imageUrl, on
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in">
-      <div className="flex justify-between items-center mb-6">
-          <button onClick={onReset} className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500">
+    <div className="animate-fade-in">
+      <div className="p-6 flex justify-between items-center">
+          <button onClick={onReset} className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring focus-visible:ring-blue-500">
             <div className="transition-transform duration-200 ease-in-out group-hover:scale-110"><BackIcon /></div>
             Назад
           </button>
-          <button onClick={() => navigator.share ? navigator.share({ title: result['Назва (укр.)'], text: result['Загальний опис'] }) : alert('Share not supported')} className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring focus-visible:ring-blue-500">
+          <button onClick={() => navigator.share ? navigator.share({ title: result['Назва (укр.)'], text: result['Загальний опис'] }) : alert('Share not supported')} className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring focus-visible:ring-blue-500">
             <div className="transition-transform duration-200 ease-in-out group-hover:scale-110"><ShareIcon /></div>
             Поділитись
           </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div>
         <div className="md:flex">
-          <div className="md:flex-shrink-0">
-            <img className="h-64 w-full object-cover md:w-64" src={imageUrl} alt={result['Назва (укр.)']} />
+          <div className="md:flex-shrink-0 md:w-1/3">
+            <img className="h-full w-full object-cover" src={imageUrl} alt={result['Назва (укр.)']} />
           </div>
-          <div className="p-8">
-            <div className={`inline-block px-3 py-1 text-sm font-semibold rounded-full mb-2 ${difficultyColorMap[result['Складність догляду']]}`}>
+          <div className="p-8 flex flex-col justify-center">
+            <div className={`inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3 self-start ${difficultyColorMap[result['Складність догляду']]}`}>
               Складність: {result['Складність догляду']}
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">{result['Назва (укр.)']}</h1>
-            <p className="mt-1 text-md text-gray-500 italic">{result['Назва (лат.)']}</p>
-            <p className="mt-4 text-gray-600">{result['Загальний опис']}</p>
+            <h1 className="text-4xl font-bold text-gray-900">{result['Назва (укр.)']}</h1>
+            <p className="mt-1 text-lg text-gray-500 italic">{result['Назва (лат.)']}</p>
+            <div className="mt-6 text-gray-700 prose max-w-none"><p>{result['Загальний опис']}</p></div>
           </div>
         </div>
 
-        <div className="px-8 pb-6">
+        <div className="px-8 py-8">
           <button 
               onClick={handleFindSimilar}
               disabled={isLoadingSimilar}
-              className="group w-full flex items-center justify-center gap-3 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+              className="group w-full flex items-center justify-center gap-3 px-6 py-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
           >
               {isLoadingSimilar ? (
                   <>
@@ -144,11 +144,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ result, imageUrl, on
 
         {(similarObjects || similarError) && (
             <div className="px-8 pb-8 animate-fade-in">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Схожі види</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Схожі види</h3>
                 {similarObjects && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {similarObjects.map((item, index) => (
-                            <div key={index} className="bg-gray-50/80 p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <div key={index} className="bg-slate-100 p-4 rounded-lg border border-slate-200 shadow-sm">
                                 <p className="font-bold text-gray-900">{item['Назва']}</p>
                                 <p className="text-sm text-gray-600 mt-1">{item['Причина схожості']}</p>
                             </div>
@@ -161,7 +161,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ result, imageUrl, on
             </div>
         )}
         
-        <div className="bg-gray-50">
+        <div className="bg-slate-50/70">
             {isFish ? (
                 <>
                     <AccordionItem title="Умови утримання" icon={<DropletIcon />}>
