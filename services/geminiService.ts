@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
+
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import type { IdentificationReport, SimilarObject } from '../types';
 import { ObjectType } from '../types';
 
@@ -61,13 +62,66 @@ const plantSchema = {
     required: ["Назва (укр.)", "Назва (лат.)", "Тип", "Загальний опис", "Умови утримання", "Освітлення", "CO2 та добрива", "Розміщення в акваріумі", "Складність догляду"]
 };
 
+const combinedSchema = {
+    type: Type.OBJECT,
+    properties: {
+      identification: {
+        oneOf: [fishSchema, plantSchema]
+      }
+    },
+    required: ['identification']
+};
 
-export async function identifyAquariumObject(imageBase64: string, mimeType: string): Promise<IdentificationReport> {
-  const prompt = `Ви — експертна система для розпізнавання акваріумних риб та рослин. Проаналізуйте надане зображення. Чітко визначте, чи це риба, чи рослина. Визначте точну наукову (латинську) та поширену (українську) назви об'єкта. Надайте вичерпну інформацію у форматі JSON, що відповідає наданій схемі.
+async function parseIdentificationResponse(responsePromise: Promise<{ text: string }>): Promise<IdentificationReport> {
+    const response = await responsePromise;
+    const jsonString = response.text;
+    if (!jsonString) {
+      throw new Error("API не повернуло результат. Можливо, об'єкт не розпізнано.");
+    }
+  
+    try {
+      const parsedResponse = JSON.parse(jsonString);
+      const data = parsedResponse.identification;
+      if (!data) {
+        throw new Error("Відповідь API не містить очікуваних даних.");
+      }
+      return data as IdentificationReport;
+    } catch (e) {
+      console.error("Failed to parse JSON response:", jsonString);
+      throw new Error("Отримана відповідь має невірний формат.");
+    }
+}
+
+export async function identifyByText(description: string): Promise<IdentificationReport> {
+    const prompt = `Ви — експертна система для розпізнавання акваріумних риб та рослин. Проаналізуйте наданий текстовий опис. Визначте, чи це риба, чи рослина. Визначте точну наукову (латинську) та поширену (українську) назви об'єкта. Надайте вичерпну інформацію у форматі JSON, що відповідає наданій схемі.
+  
+Опис від користувача: "${description}"
+  
+Якщо описаний об'єкт - риба, використовуйте схему для риби. Якщо рослина — схему для рослини. Вся текстова інформація має бути українською мовою. Якщо об'єкт неможливо ідентифікувати за описом, поверніть помилку.`;
+
+    const response = ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: { parts: [{ text: prompt }] },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: combinedSchema
+        }
+    });
+
+    return parseIdentificationResponse(response);
+}
+
+
+export async function identifyAquariumObject(imageBase64: string, mimeType: string, description: string): Promise<IdentificationReport> {
+  let prompt = `Ви — експертна система для розпізнавання акваріумних риб та рослин. Проаналізуйте надане зображення. Чітко визначте, чи це риба, чи рослина. Визначте точну наукову (латинську) та поширену (українську) назви об'єкта. Надайте вичерпну інформацію у форматі JSON, що відповідає наданій схемі.
   
 Для поля "Умови утримання" надайте як структуровані дані (температура, pH, жорсткість, об'єм акваріума для риб), так і загальний текстовий опис у полі "Опис".
   
 Якщо на фото риба, використовуйте схему для риби. Якщо рослина — схему для рослини. Вся текстова інформація має бути українською мовою. Якщо об'єкт неможливо ідентифікувати як акваріумну рибу або рослину, поверніть помилку.`;
+
+  if (description && description.trim() !== '') {
+    prompt += `\n\nКористувач надав додатковий контекст: "${description}". Будь ласка, врахуйте цю інформацію під час аналізу зображення.`;
+  }
 
   const imagePart = {
     inlineData: {
@@ -78,17 +132,7 @@ export async function identifyAquariumObject(imageBase64: string, mimeType: stri
   
   const textPart = { text: prompt };
 
-  const combinedSchema = {
-    type: Type.OBJECT,
-    properties: {
-      identification: {
-        oneOf: [fishSchema, plantSchema]
-      }
-    },
-    required: ['identification']
-  };
-
-  const response = await ai.models.generateContent({
+  const response = ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: { parts: [imagePart, textPart] },
     config: {
@@ -97,22 +141,31 @@ export async function identifyAquariumObject(imageBase64: string, mimeType: stri
     }
   });
 
-  const jsonString = response.text;
-  if (!jsonString) {
-    throw new Error("API не повернуло результат. Можливо, об'єкт не розпізнано.");
-  }
+  return parseIdentificationResponse(response);
+}
 
-  try {
-    const parsedResponse = JSON.parse(jsonString);
-    const data = parsedResponse.identification;
-    if (!data) {
-      throw new Error("Відповідь API не містить очікуваних даних.");
+export async function generateImageForObject(objectName: string): Promise<string> {
+    const prompt = `A realistic, high-quality, vibrant photograph of a single "${objectName}" in a beautiful, well-lit aquarium setting. The subject should be in clear focus.`;
+  
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [
+          { text: prompt },
+        ],
+      },
+      config: {
+          responseModalities: [Modality.IMAGE],
+      },
+    });
+  
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        return part.inlineData.data;
+      }
     }
-    return data as IdentificationReport;
-  } catch (e) {
-    console.error("Failed to parse JSON response:", jsonString);
-    throw new Error("Отримана відповідь має невірний формат.");
-  }
+  
+    throw new Error("Could not generate an image for the object.");
 }
 
 const similarObjectsSchema = {

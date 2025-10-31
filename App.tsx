@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { Loader } from './components/Loader';
-import { identifyAquariumObject } from './services/geminiService';
+import { identifyAquariumObject, identifyByText, generateImageForObject } from './services/geminiService';
 import type { IdentificationReport } from './types';
 import { SearchQuestionIcon, LogoIcon } from './components/icons';
 
@@ -15,7 +15,7 @@ const NotFoundScreen: React.FC<{ onReset: () => void }> = ({ onReset }) => {
       <SearchQuestionIcon />
       <h2 className="text-2xl font-bold text-gray-800 mt-6 mb-2">Нічого не знайдено</h2>
       <p className="text-gray-600 max-w-md mb-8">
-        На жаль, нам не вдалося розпізнати рибу чи рослину на цьому зображенні. Будь ласка, спробуйте зробити більш чітке фото та завантажте його знову.
+        На жаль, нам не вдалося розпізнати рибу чи рослину. Будь ласка, спробуйте уточнити опис або завантажте більш чітке фото.
       </p>
       <button
         onClick={onReset}
@@ -41,10 +41,12 @@ const App: React.FC = () => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [result, setResult] = useState<IdentificationReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
 
-  const handleImageUpload = useCallback(async (file: File) => {
+  const handleImageUpload = useCallback(async (file: File, description: string) => {
     if (!file) return;
 
+    setLoadingMessage('Аналізуємо ваше зображення...');
     setScreen('loading');
     setError(null);
     setResult(null);
@@ -59,7 +61,7 @@ const App: React.FC = () => {
         if (!base64Data) {
             throw new Error("Could not extract base64 data from image.");
         }
-        const identifiedObject = await identifyAquariumObject(base64Data, file.type);
+        const identifiedObject = await identifyAquariumObject(base64Data, file.type, description);
         setResult(identifiedObject);
         setScreen('result');
       } catch (err) {
@@ -76,17 +78,50 @@ const App: React.FC = () => {
     reader.readAsDataURL(file);
   }, []);
 
+  const handleTextSearch = useCallback(async (description: string) => {
+    if (!description) return;
+
+    setLoadingMessage('Шукаємо за вашим описом...');
+    setScreen('loading');
+    setError(null);
+    setResult(null);
+    setImageDataUrl(null);
+
+    try {
+        const identifiedObject = await identifyByText(description);
+        setResult(identifiedObject);
+
+        setLoadingMessage('Створюємо зображення для вас...');
+        const objectName = identifiedObject['Назва (лат.)'] || identifiedObject['Назва (укр.)'];
+        const imageBase64 = await generateImageForObject(objectName);
+        const dataUrl = `data:image/png;base64,${imageBase64}`;
+        setImageDataUrl(dataUrl);
+
+        setScreen('result');
+    } catch (err) {
+        console.error(err);
+        const errorMessage = err instanceof Error ? err.message : 'Не вдалося знайти об\'єкт за описом.';
+        if (errorMessage.includes('не розпізнано') || errorMessage.includes('не містить очікуваних даних') || errorMessage.includes('неможливо ідентифікувати')) {
+            setScreen('not_found');
+        } else {
+            setError(errorMessage);
+            setScreen('error');
+        }
+    }
+  }, []);
+
   const handleReset = () => {
     setScreen('home');
     setImageDataUrl(null);
     setResult(null);
     setError(null);
+    setLoadingMessage('');
   };
 
   const renderScreen = () => {
     switch (screen) {
       case 'loading':
-        return <Loader />;
+        return <Loader message={loadingMessage} />;
       case 'result':
         return result && imageDataUrl && <ResultScreen result={result} imageUrl={imageDataUrl} onReset={handleReset} />;
       case 'not_found':
@@ -106,7 +141,7 @@ const App: React.FC = () => {
         );
       case 'home':
       default:
-        return <HomeScreen onImageUpload={handleImageUpload} />;
+        return <HomeScreen onImageUpload={handleImageUpload} onTextSearch={handleTextSearch} />;
     }
   };
 

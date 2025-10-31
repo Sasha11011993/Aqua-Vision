@@ -1,7 +1,11 @@
 
 import React from 'react';
 
-export const Loader: React.FC = () => {
+interface LoaderProps {
+    message?: string;
+}
+
+export const Loader: React.FC<LoaderProps> = ({ message }) => {
   return (
     <div className="flex flex-col items-center justify-center p-16 md:p-24 min-h-[400px]">
        <div className="relative w-24 h-24">
@@ -14,7 +18,7 @@ export const Loader: React.FC = () => {
          </div>
          <svg className="w-24 h-24 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.043 5.928c.456-.412 1.12-.628 1.766-.628 1.43 0 2.589 1.49 2.589 3.333 0 .75-.205 1.454-.582 2.068M12 21c-3.314 0-6-2.239-6-5s2.686-5 6-5 6 2.239 6 5-2.686 5-6 5zm0 0v-5m0 5c-3.314 0-6-2.239-6-5s2.686-5 6-5m-6 5h12m-6 5c3.314 0 6-2.239 6-5s-2.686-5-6-5"></path></svg>
        </div>
-      <p className="mt-8 text-xl font-semibold text-gray-700">Розпізнаємо об'єкт...</p>
+      <p className="mt-8 text-xl font-semibold text-gray-700">{message || 'Розпізнаємо об\'єкт...'}</p>
       <p className="mt-2 text-gray-500">Це може зайняти кілька секунд.</p>
       <style>{`
         @keyframes bubble {
